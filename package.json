@@ -1,8 +1,8 @@
 {
   "name": "@remvst/matrix",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "Simple matrix class",
-  "main": "lib/index.js",
+  "main": "lib/matrix.js",
   "scripts": {
     "test": "ts-node node_modules/jasmine/bin/jasmine --config=spec/support/jasmine.json",
     "coverage": "nyc -r lcov -e .ts -x \"spec/**/*.spec.ts\" npm run test",

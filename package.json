@@ -1,11 +1,24 @@
 {
   "name": "@remvst/matrix",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "Simple matrix class",
-  "main": "index.js",
+  "main": "lib/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "ts-node node_modules/jasmine/bin/jasmine --config=spec/support/jasmine.json",
+    "coverage": "nyc -r lcov -e .ts -x \"spec/**/*.spec.ts\" npm run test",
+    "build": "tsc"
   },
-  "author": "",
-  "license": "UNLICENSED"
+  "author": "Rémi Vansteelandt",
+  "license": "UNLICENSED",
+  "dependencies": {
+    "jasmine-ts": "^0.3.0",
+    "nyc": "^15.1.0",
+    "ts-node": "^9.1.1"
+  },
+  "devDependencies": {
+    "@types/jasmine": "^3.6.2",
+    "istanbul": "^0.4.5",
+    "jasmine": "^3.4.0",
+    "typescript": "^4.1.3"
+  }
 }

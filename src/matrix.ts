@@ -1,14 +1,22 @@
 'use strict';
 
-class Matrix {
+export default class Matrix<T> {
 
-    constructor(m) {
-        this.matrix = m;
-        this.rows = m.length;
-        this.cols = m[0].length;
+    readonly matrix: (T | undefined)[][];
+    readonly rows: number;
+    readonly cols: number;
+
+    constructor(input: (T | undefined)[][]) {
+        this.matrix = input;
+        this.rows = input.length;
+        this.cols = input[0].length;
     }
 
-    get(row, col, defaultValue) {
+    get(
+        row: number,
+        col: number,
+        defaultValue: T | undefined = undefined,
+    ): T | undefined {
         if (row < 0 || row > this.rows - 1) {
             return defaultValue;
         }
@@ -18,12 +26,16 @@ class Matrix {
         return this.matrix[row][col];
     }
 
-    set(row, col, x) {
-        this.matrix[row][col] = x;
+    set(
+        row: number,
+        col: number,
+        value: T | undefined,
+    ) {
+        this.matrix[row][col] = value;
     }
 
-    symetrical() {
-        const symetrical = Matrix.empty(this.cols, this.rows, 0);
+    symetrical(): Matrix<T> {
+        const symetrical = Matrix.empty<T>(this.cols, this.rows, undefined);
         for (let row = 0 ; row < this.cols ; row++) {
             for (let col = 0 ; col < this.rows ; col++) {
                 symetrical.set(row, col, this.matrix[col][row]);
@@ -32,8 +44,8 @@ class Matrix {
         return symetrical;
     }
 
-    flipped() {
-        const flipped = Matrix.empty(this.rows, this.cols, 0);
+    flipped(): Matrix<T> {
+        const flipped = Matrix.empty<T>(this.rows, this.cols, undefined);
         for (let row = 0 ; row < this.rows ; row++) {
             for (let col = 0 ; col < this.cols ; col++) {
                 flipped.set(row, col, this.matrix[this.rows - row - 1][col]);
@@ -42,7 +54,7 @@ class Matrix {
         return flipped;
     }
 
-    prettyString() {
+    asPrettyString(): string {
         const rows = [];
 
         for (let row = 0 ; row < this.rows ; row++) {
@@ -52,18 +64,29 @@ class Matrix {
         return rows.join('\n');
     }
 
-    extract(row, col, rows, cols, defaultValue) {
-        const subMatrix = [];
+    extract(
+        row: number,
+        col: number,
+        rows: number,
+        cols: number,
+        defaultValue: T | undefined = undefined,
+    ): Matrix<T> {
+        const subMatrix: (T | undefined)[][] = [];
         for (let r = 0 ; r < rows ; r++) {
             subMatrix.push([]);
             for (let c = 0 ; c < cols ; c++) {
-                const globalRow = r + row;
-                const globalCol = c + col;
+                const originalRow = r + row;
+                const originalCol = c + col;
 
-                if (globalRow < this.rows && globalCol < this.cols) {
-                    subMatrix[r][c] = this.matrix[globalRow][globalCol];
+                if (
+                    originalRow >= 0 &&
+                    originalCol >= 0 &&
+                    originalRow < this.rows &&
+                    originalCol < this.cols
+                ) {
+                    subMatrix[r][c] = this.matrix[originalRow][originalCol];
                 } else {
-                    subMatrix[r][c] = defaultValue || 0;
+                    subMatrix[r][c] = defaultValue;
                 }
             }
         }
@@ -71,11 +94,11 @@ class Matrix {
         return new Matrix(subMatrix);
     }
 
-    copy() {
-        return this.extract(0, 0, this.rows, this.cols);
+    copy(): Matrix<T> {
+        return this.extract(0, 0, this.rows, this.cols, undefined);
     }
 
-    forEachCell(callback) {
+    forEachCell(callback: (row: number, col: number, value: T | undefined) => void): void {
         for (let row = 0 ; row < this.rows ; row++) {
             for (let col = 0 ; col < this.cols ; col++) {
                 callback(row, col, this.matrix[row][col]);
@@ -83,8 +106,8 @@ class Matrix {
         }
     }
 
-    map(mapper) {
-        const matrix = this.copy();
+    map<U>(mapper: (row: number, col: number, value: T | undefined) => U): Matrix<U> {
+        const matrix = Matrix.empty<U>(this.rows, this.cols, undefined);
         for (let row = 0 ; row < this.rows ; row++) {
             for (let col = 0 ; col < this.cols ; col++) {
                 const mappedValue = mapper(row, col, this.matrix[row][col]);
@@ -94,13 +117,13 @@ class Matrix {
         return matrix;
     }
 
-    flattened() {
-        const list = [];
-        this.forEachCell((row, col, value) => list.push(value));
+    flattened(): (T | undefined)[] {
+        const list: (T | undefined)[] = [];
+        this.forEachCell((_1, _2, value) => list.push(value));
         return list;
     }
 
-    equals(otherMatrix) {
+    equals(otherMatrix: Matrix<T>): boolean {
         if (otherMatrix.rows !== this.rows || otherMatrix.cols !== this.cols) {
             return false;
         }
@@ -116,27 +139,19 @@ class Matrix {
         return true;
     }
 
-    toJSON() {
-        return this.matrix;
-    }
-
-    static fromJSON(json) {
-        return new Matrix(json);
-    }
-
-    static empty(rows, cols, x) {
-        x = x || 0;
-
-        const matrix = [];
+    static empty<T>(
+        rows: number,
+        cols: number,
+        initialValue: T | undefined,
+    ): Matrix<T> {
+        const matrix: (T | undefined)[][] = [];
         for (let row = 0 ; row < rows ; row++) {
             matrix.push([]);
             for (let col = 0 ; col < cols ; col++) {
-                matrix[row].push(x);
+                matrix[row].push(initialValue);
             }
         }
 
         return new Matrix(matrix);
     }
 }
-
-module.exports = Matrix;
